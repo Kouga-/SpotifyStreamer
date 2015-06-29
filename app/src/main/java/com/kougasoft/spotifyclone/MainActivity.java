@@ -14,7 +14,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, new MainFragment())
+                    .add(R.id.fragment_container, new ArtistSearchFragment())
                     .commit();
         }
     }

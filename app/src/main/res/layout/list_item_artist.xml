@@ -5,16 +5,16 @@
 
     <LinearLayout
         android:orientation="horizontal" android:layout_width="match_parent"
-        android:layout_height="128dp">
+        android:layout_height="96dp">
 
         <ImageView
-            android:layout_width="96dp"
-            android:layout_height="96dp"
+            android:layout_width="@dimen/list_image_size"
+            android:layout_height="@dimen/list_image_size"
             android:id="@+id/artistImage"
-            android:layout_marginLeft="32dp"
-            android:layout_marginRight="32dp"
+            android:layout_marginRight="16dp"
             android:src="@mipmap/ic_launcher"
-            android:layout_gravity="center_vertical" />
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="16dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -23,13 +23,6 @@
             android:id="@+id/artistName"
             android:layout_marginRight="16dp"
             android:layout_gravity="center_vertical"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
     </LinearLayout>
-    <View
-    android:layout_width="match_parent"
-    android:layout_height="1dp"
-    android:background="@android:color/darker_gray"
-        android:layout_gravity="bottom"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp" />
 </FrameLayout>
