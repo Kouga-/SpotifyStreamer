@@ -13,11 +13,11 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyAdapter extends BaseAdapter {
-    private List<MyArtist> mMyArtists = new ArrayList<>();
+public class ArtistSearchListAdapter extends BaseAdapter {
+    private List<Artist> mArtists = new ArrayList<>();
 
-    public MyAdapter(List<MyArtist> myArtists) {
-        mMyArtists = myArtists;
+    public ArtistSearchListAdapter(List<Artist> Artists) {
+        mArtists = Artists;
     }
 
     private class ViewHolder {
@@ -27,12 +27,12 @@ public class MyAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return mMyArtists.size();
+        return mArtists.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mMyArtists.get(position);
+        return mArtists.get(position);
     }
 
     @Override
@@ -57,11 +57,11 @@ public class MyAdapter extends BaseAdapter {
         } else
             holder = (ViewHolder) v.getTag();
 
-        holder.txtTitle.setText(mMyArtists.get(position).getName());
-        if(mMyArtists.get(position).getImageURL() == "")
+        holder.txtTitle.setText(mArtists.get(position).getName());
+        if(mArtists.get(position).getImageURL() == "")
             Picasso.with(parent.getContext()).load(R.mipmap.ic_launcher).into(holder.imageView);
         else
-            Picasso.with(parent.getContext()).load(mMyArtists.get(position).getImageURL()).into(holder.imageView);
+            Picasso.with(parent.getContext()).load(mArtists.get(position).getImageURL()).into(holder.imageView);
 
         return v;
     }

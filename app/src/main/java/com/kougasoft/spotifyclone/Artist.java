@@ -1,6 +1,6 @@
 package com.kougasoft.spotifyclone;
 
-public class MyArtist {
+public class Artist {
     private String name;
     private String id;
     private String imageURL;
@@ -29,7 +29,7 @@ public class MyArtist {
         this.imageURL = imageURL;
     }
 
-    public MyArtist(String name, String id, String imageURL) {
+    public Artist(String name, String id, String imageURL) {
         this.name = name;
         this.id = id;
         this.imageURL = imageURL;

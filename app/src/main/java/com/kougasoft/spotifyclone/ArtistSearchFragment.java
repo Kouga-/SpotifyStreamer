@@ -1,6 +1,7 @@
 package com.kougasoft.spotifyclone;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -21,8 +23,10 @@ import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
 
 public class ArtistSearchFragment extends Fragment {
-    List<MyArtist> mArtistList = new ArrayList<>();
-    MyAdapter mAdapter;
+    List<Artist> mArtistList = new ArrayList<>();
+    ArtistSearchListAdapter mAdapter;
+    public final static String SPOTIFY_ID = "spotifyID";
+    public final static String ARTIST_NAME = "artistName";
 
     public ArtistSearchFragment() {
 
@@ -49,8 +53,18 @@ public class ArtistSearchFragment extends Fragment {
             }
         });
 
-        mAdapter = new MyAdapter(mArtistList);
+        mAdapter = new ArtistSearchListAdapter(mArtistList);
         lv.setAdapter(mAdapter);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), Top10Activity.class);
+                intent.putExtra(SPOTIFY_ID, mArtistList.get(position).getId());
+                intent.putExtra(ARTIST_NAME, mArtistList.get(position).getName());
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
@@ -74,7 +88,7 @@ public class ArtistSearchFragment extends Fragment {
             mArtistList.clear();
             for (int i = 0; i < artistsPager.artists.items.size(); i++) {
                 String image = artistsPager.artists.items.get(i).images.isEmpty() ? "" : artistsPager.artists.items.get(i).images.get(0).url;
-                mArtistList.add(new MyArtist(artistsPager.artists.items.get(i).name, artistsPager.artists.items.get(i).id, image));
+                mArtistList.add(new Artist(artistsPager.artists.items.get(i).name, artistsPager.artists.items.get(i).id, image));
             }
 
             mAdapter.notifyDataSetChanged();
