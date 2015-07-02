@@ -3,6 +3,7 @@ package com.kougasoft.spotifyclone;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,14 +17,19 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class PlayerFragment extends Fragment {
-    ImageButton ibPrev;
-    ImageButton ibPlay;
-    ImageButton ibNext;
+    ImageButton ibPrev, ibPlay, ibNext;
     SeekBar sbSscrubBar;
+    TextView tvCurrentTime, tvEndTime;
     boolean playerIsPrepared = false;
-    MediaPlayer mediaPlayer = null;
+    MediaPlayer mMediaPlayer = null;
+    Date mDuration;
+    final DateFormat timeFormat = new SimpleDateFormat("mm:ss");
+    Handler mHandler = new Handler();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,6 +39,8 @@ public class PlayerFragment extends Fragment {
         TextView tvAlbumName = (TextView) rootView.findViewById(R.id.albumName);
         TextView tvTrackName = (TextView) rootView.findViewById(R.id.trackName);
         ImageView ivAlbumArt = (ImageView) rootView.findViewById(R.id.albumArt);
+        tvCurrentTime = (TextView) rootView.findViewById(R.id.currentTime);
+        tvEndTime = (TextView) rootView.findViewById(R.id.endTime);
         sbSscrubBar = (SeekBar) rootView.findViewById(R.id.seekBar);
         ibPrev = (ImageButton) rootView.findViewById(R.id.previousButton);
         ibPlay = (ImageButton) rootView.findViewById(R.id.playButton);
@@ -41,22 +49,23 @@ public class PlayerFragment extends Fragment {
         ibPrev.setClickable(false);
         ibPlay.setClickable(false);
         ibNext.setClickable(false);
+        sbSscrubBar.setEnabled(false);
+
         sbSscrubBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                if(fromUser && playerIsPrepared) {
+                    mMediaPlayer.seekTo(progress * 1000);
+                }
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
+
         tvArtistName.setText(getArguments().getString(Top10ListFragment.ARTIST_NAME));
         tvAlbumName.setText(getArguments().getString(Top10ListFragment.ALBUM_NAME));
         tvTrackName.setText(getArguments().getString(Top10ListFragment.TRACK_NAME));
@@ -66,7 +75,7 @@ public class PlayerFragment extends Fragment {
         else
             Picasso.with(getActivity()).load(R.mipmap.ic_launcher).into(ivAlbumArt);
 
-        mediaPlayer = getMediaPlayer(getArguments().getString(Top10ListFragment.PREVIEW_URL));
+        mMediaPlayer = getMediaPlayer(getArguments().getString(Top10ListFragment.PREVIEW_URL));
 
         return rootView;
     }
@@ -74,20 +83,20 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if(mediaPlayer != null) {
-            mediaPlayer.pause();
+        if(mMediaPlayer != null) {
+            mMediaPlayer.pause();
             playerIsPrepared = false;
             ibPlay.setImageResource(android.R.drawable.ic_media_play);
-            mediaPlayer.release();
-            mediaPlayer = null;
+            mMediaPlayer.release();
+            mMediaPlayer = null;
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if(mediaPlayer == null)
-            mediaPlayer = getMediaPlayer(getArguments().getString(Top10ListFragment.PREVIEW_URL));
+        if(mMediaPlayer == null)
+            mMediaPlayer = getMediaPlayer(getArguments().getString(Top10ListFragment.PREVIEW_URL));
     }
 
     public MediaPlayer getMediaPlayer(String previewUrl) {
@@ -100,7 +109,7 @@ public class PlayerFragment extends Fragment {
             mediaPlayer.prepareAsync();
         }
         catch (IOException ex) {
-            Toast.makeText(getActivity(), "Error retrieving track preview!", Toast.LENGTH_LONG);
+            Toast.makeText(getActivity(), "Error retrieving track preview!", Toast.LENGTH_LONG).show();
             return null;
         }
 
@@ -114,15 +123,33 @@ public class PlayerFragment extends Fragment {
             ibPrev.setClickable(true);
             ibPlay.setClickable(true);
             ibNext.setClickable(true);
+            sbSscrubBar.setEnabled(true);
+
+            sbSscrubBar.setMax(mp.getDuration()/1000);
+            mDuration = new Date(mp.getDuration());
+            tvCurrentTime.setText("0:00");
+            tvEndTime.setText(timeFormat.format(mDuration));
 
             ibPlay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!mediaPlayer.isPlaying() && playerIsPrepared) {
-                        mediaPlayer.start();
+                    if (!mMediaPlayer.isPlaying() && playerIsPrepared) {
+                        mMediaPlayer.start();
                         ibPlay.setImageResource(android.R.drawable.ic_media_pause);
+                        getActivity().runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+                                    int mCurrentPosition = mMediaPlayer.getCurrentPosition() / 1000;
+                                    sbSscrubBar.setProgress(mCurrentPosition);
+                                    tvCurrentTime.setText(timeFormat.format(new Date(mMediaPlayer.getCurrentPosition())));
+                                    mHandler.postDelayed(this, 1000);
+                                }
+                            }
+                        });
                     } else {
-                        mediaPlayer.pause();
+                        mMediaPlayer.pause();
                         ibPlay.setImageResource(android.R.drawable.ic_media_play);
                     }
                 }
