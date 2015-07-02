@@ -24,13 +24,10 @@ import kaaes.spotify.webapi.android.models.Tracks;
 import kaaes.spotify.webapi.android.models.TracksPager;
 
 public class Top10ListFragment extends Fragment {
-    List<Track> mTrackList = new ArrayList<>();
+    ArrayList<Track> mTrackList = new ArrayList<>();
     Top10ListAdapter mAdapter;
-    public final static String ARTIST_NAME = "artistName";
-    public final static String ALBUM_NAME = "albumName";
-    public final static String ALBUM_ART_URL = "albumArtURL";
-    public final static String TRACK_NAME = "trackName";
-    public final static String PREVIEW_URL = "previewURL";
+    public final static String TRACK_LIST = "trackList";
+    public final static String POSITION = "position";
     String artistName;
     String spotifyID;
 
@@ -53,12 +50,8 @@ public class Top10ListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                intent.putExtra(ARTIST_NAME, artistName);
-                intent.putExtra(ALBUM_NAME, mTrackList.get(position).albumName);
-                intent.putExtra(ALBUM_ART_URL, mTrackList.get(position).albumArtThumb);
-                intent.putExtra(TRACK_NAME, mTrackList.get(position).trackName);
-                intent.putExtra(PREVIEW_URL, mTrackList.get(position).previewURL);
-
+                intent.putExtra(POSITION, position);
+                intent.putParcelableArrayListExtra(TRACK_LIST, mTrackList);
                 startActivity(intent);
             }
         });
@@ -89,7 +82,7 @@ public class Top10ListFragment extends Fragment {
             mTrackList.clear();
             for (int i = 0; i < tracksPager.tracks.size(); i++) {
                 String image = tracksPager.tracks.get(i).album.images.isEmpty() ? "" : tracksPager.tracks.get(i).album.images.get(1).url;
-                mTrackList.add(new Track(tracksPager.tracks.get(i).name, tracksPager.tracks.get(i).album.name, image, tracksPager.tracks.get(i).preview_url));
+                mTrackList.add(new Track(artistName, tracksPager.tracks.get(i).name, tracksPager.tracks.get(i).album.name, image, tracksPager.tracks.get(i).preview_url));
             }
 
             mAdapter.notifyDataSetChanged();

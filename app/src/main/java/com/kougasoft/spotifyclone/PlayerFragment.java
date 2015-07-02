@@ -19,16 +19,20 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class PlayerFragment extends Fragment {
     ImageButton ibPrev, ibPlay, ibNext;
     SeekBar sbSscrubBar;
     TextView tvCurrentTime, tvEndTime;
     boolean playerIsPrepared = false;
+    ArrayList<Track> mTrackList;
+    int mPosition;
     MediaPlayer mMediaPlayer = null;
     Date mDuration;
-    final DateFormat timeFormat = new SimpleDateFormat("mm:ss");
+    final DateFormat timeFormat = new SimpleDateFormat("mm:ss", Locale.US);
     Handler mHandler = new Handler();
 
     @Override
@@ -66,16 +70,21 @@ public class PlayerFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        tvArtistName.setText(getArguments().getString(Top10ListFragment.ARTIST_NAME));
-        tvAlbumName.setText(getArguments().getString(Top10ListFragment.ALBUM_NAME));
-        tvTrackName.setText(getArguments().getString(Top10ListFragment.TRACK_NAME));
-        String albumArtURL = getArguments().getString(Top10ListFragment.ALBUM_ART_URL);
+        Bundle trackListBundle = getArguments();
+        mTrackList = trackListBundle.getParcelableArrayList(Top10ListFragment.TRACK_LIST);
+        mPosition = trackListBundle.getInt(Top10ListFragment.POSITION);
+
+        tvArtistName.setText(mTrackList.get(mPosition).artistName);
+        tvAlbumName.setText(mTrackList.get(mPosition).albumName);
+        tvTrackName.setText(mTrackList.get(mPosition).trackName);
+        String albumArtURL = mTrackList.get(mPosition).albumArtThumb;
+
         if(albumArtURL != "")
             Picasso.with(getActivity()).load(albumArtURL).into(ivAlbumArt);
         else
             Picasso.with(getActivity()).load(R.mipmap.ic_launcher).into(ivAlbumArt);
 
-        mMediaPlayer = getMediaPlayer(getArguments().getString(Top10ListFragment.PREVIEW_URL));
+        mMediaPlayer = getMediaPlayer(mTrackList.get(mPosition).previewURL);
 
         return rootView;
     }
@@ -96,7 +105,7 @@ public class PlayerFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if(mMediaPlayer == null)
-            mMediaPlayer = getMediaPlayer(getArguments().getString(Top10ListFragment.PREVIEW_URL));
+            mMediaPlayer = getMediaPlayer(mTrackList.get(mPosition).previewURL);
     }
 
     public MediaPlayer getMediaPlayer(String previewUrl) {
@@ -158,7 +167,6 @@ public class PlayerFragment extends Fragment {
             ibPrev.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                 }
             });
         }
