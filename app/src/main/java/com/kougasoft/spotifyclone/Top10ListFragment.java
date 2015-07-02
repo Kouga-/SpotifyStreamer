@@ -1,5 +1,6 @@
 package com.kougasoft.spotifyclone;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -7,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -24,14 +26,21 @@ import kaaes.spotify.webapi.android.models.TracksPager;
 public class Top10ListFragment extends Fragment {
     List<Track> mTrackList = new ArrayList<>();
     Top10ListAdapter mAdapter;
+    public final static String ARTIST_NAME = "artistName";
+    public final static String ALBUM_NAME = "albumName";
+    public final static String ALBUM_ART_URL = "albumArtURL";
+    public final static String TRACK_NAME = "trackName";
+    public final static String PREVIEW_URL = "previewURL";
+    String artistName;
+    String spotifyID;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_top10_tracks, container, false);
         ListView lv = (ListView) rootView.findViewById(R.id.lvTop10);
 
-        String spotifyID = getArguments().getString(ArtistSearchFragment.SPOTIFY_ID);
-        String artistName = getArguments().getString(ArtistSearchFragment.ARTIST_NAME);
+        spotifyID = getArguments().getString(ArtistSearchFragment.SPOTIFY_ID);
+        artistName = getArguments().getString(ArtistSearchFragment.ARTIST_NAME);
 
         if(spotifyID != null) {
             new FetchTop10Task().execute(spotifyID, artistName);
@@ -39,6 +48,20 @@ public class Top10ListFragment extends Fragment {
 
         mAdapter = new Top10ListAdapter(mTrackList);
         lv.setAdapter(mAdapter);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), PlayerActivity.class);
+                intent.putExtra(ARTIST_NAME, artistName);
+                intent.putExtra(ALBUM_NAME, mTrackList.get(position).albumName);
+                intent.putExtra(ALBUM_ART_URL, mTrackList.get(position).albumArtThumb);
+                intent.putExtra(TRACK_NAME, mTrackList.get(position).trackName);
+                intent.putExtra(PREVIEW_URL, mTrackList.get(position).previewURL);
+
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
