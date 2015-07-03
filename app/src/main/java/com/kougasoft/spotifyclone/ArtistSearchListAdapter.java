@@ -58,7 +58,7 @@ public class ArtistSearchListAdapter extends BaseAdapter {
             holder = (ViewHolder) v.getTag();
 
         holder.txtTitle.setText(mArtists.get(position).getName());
-        if(mArtists.get(position).getImageURL() == "")
+        if(mArtists.get(position).getImageURL().equals(""))
             Picasso.with(parent.getContext()).load(R.mipmap.ic_launcher).into(holder.imageView);
         else
             Picasso.with(parent.getContext()).load(mArtists.get(position).getImageURL()).into(holder.imageView);
